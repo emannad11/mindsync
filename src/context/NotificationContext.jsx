@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Bell, Zap, AlertCircle, Info } from 'lucide-react';
+import { X, Bell, Zap, AlertCircle, Info, ListTodo } from 'lucide-react';
 
 const NotificationContext = createContext();
 
@@ -25,8 +25,24 @@ export const NotificationProvider = ({ children }) => {
     switch (type) {
       case 'ai': return <Zap className="w-5 h-5 text-indigo-400" />;
       case 'alert': return <AlertCircle className="w-5 h-5 text-rose-400" />;
+      case 'task_alert': return <ListTodo className="w-5 h-5 text-amber-400" />;
       case 'health': return <Bell className="w-5 h-5 text-cyan-400" />;
       default: return <Info className="w-5 h-5 text-slate-400" />;
+    }
+  };
+
+  const getCardStyle = (type) => {
+    switch (type) {
+      case 'task_alert':
+        return 'border-amber-500/20 bg-slate-900/90 shadow-lg shadow-amber-500/5 ring-1 ring-amber-500/10';
+      case 'alert':
+        return 'border-rose-500/20 bg-slate-900/90 shadow-lg shadow-rose-500/5 ring-1 ring-rose-500/10';
+      case 'ai':
+        return 'border-indigo-500/20 bg-slate-900/90 shadow-lg shadow-indigo-500/5 ring-1 ring-indigo-500/10';
+      case 'health':
+        return 'border-cyan-500/20 bg-slate-900/90 shadow-lg shadow-cyan-500/5 ring-1 ring-cyan-500/10';
+      default:
+        return 'border-white/10 bg-slate-900/80';
     }
   };
 
@@ -43,7 +59,7 @@ export const NotificationProvider = ({ children }) => {
               initial={{ opacity: 0, x: 50, scale: 0.9 }}
               animate={{ opacity: 1, x: 0, scale: 1 }}
               exit={{ opacity: 0, x: 20, scale: 0.9 }}
-              className="pointer-events-auto glass-card p-4 min-w-[300px] max-w-[400px] flex gap-4 items-start shadow-2xl border-white/10"
+              className={`pointer-events-auto glass-card p-4 min-w-[300px] max-w-[400px] flex gap-4 items-start shadow-2xl ${getCardStyle(n.type)}`}
             >
               <div className="mt-1">
                 {getIcon(n.type)}

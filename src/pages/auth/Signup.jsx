@@ -1,15 +1,50 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { BrainCircuit, Mail, Lock, User, ArrowRight } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { signup as signupApi, login as loginApi } from '../../services/api';
+import { signup as signupApi, login as loginApi, googleLogin } from '../../services/api';
 
 const Signup = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+
+  const handleGoogleCallback = async (response) => {
+    setError('');
+    setIsLoading(true);
+    try {
+      const data = await googleLogin(response.credential);
+      localStorage.setItem('token', data.access_token);
+      login();
+      navigate('/');
+    } catch (err) {
+      const errorMessage = err.response?.data?.detail || err.message || 'Google authentication failed.';
+      setError(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    /* global google */
+    const initializeGoogle = () => {
+      if (window.google) {
+        window.google.accounts.id.initialize({
+          client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID || "YOUR_GOOGLE_CLIENT_ID",
+          callback: handleGoogleCallback,
+        });
+        window.google.accounts.id.renderButton(
+          document.getElementById("google-signup-btn"),
+          { theme: "dark", size: "large", width: "100%", text: "signup_with" }
+        );
+      }
+    };
+    
+    const timer = setTimeout(initializeGoogle, 500);
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -110,6 +145,19 @@ const Signup = () => {
             {!isLoading && <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />}
           </button>
         </form>
+
+        <div className="relative my-6">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-white/10"></div>
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-[#0f172a] px-2 text-slate-400">Or continue with</span>
+          </div>
+        </div>
+
+        <div className="flex justify-center w-full mb-6">
+          <div id="google-signup-btn" className="w-full" style={{ minHeight: '40px' }} />
+        </div>
 
         <div className="mt-8 pt-6 border-t border-white/5 text-center">
           <p className="text-slate-400 text-sm">

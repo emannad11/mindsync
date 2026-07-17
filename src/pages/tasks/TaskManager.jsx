@@ -222,7 +222,7 @@ const TaskManager = () => {
                 </div>
               </div>
 
-              <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+              <div className="flex items-center gap-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                 <button 
                   onClick={() => handleDecompose(task)}
                   disabled={decomposingId === task.id || task.status === 'Completed'}

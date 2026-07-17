@@ -130,19 +130,6 @@ const Overview = () => {
   const hasNotifiedRef = React.useRef(false);
   const hasTaskNotifiedRef = React.useRef(false);
 
-  const showDesktopNotification = () => {
-    if ('Notification' in window && Notification.permission === 'granted') {
-      const notification = new Notification("MindSync Daily Reminder", {
-        body: "You haven't completed your self-assessment today. Click here to log it!",
-        requireInteraction: true
-      });
-      notification.onclick = () => {
-        window.focus();
-        window.location.href = "/health";
-      };
-    }
-  };
-
   const fetchLogs = async () => {
     try {
       const historyData = await getUserDataHistory();
@@ -161,19 +148,6 @@ const Overview = () => {
           'Self-Assessment Missing',
           'Please submit your daily self-assessment to calibrate predictions!'
         );
-        
-        // Desktop notification permission & trigger
-        if ('Notification' in window) {
-          if (Notification.permission === 'default') {
-            Notification.requestPermission().then(permission => {
-              if (permission === 'granted') {
-                showDesktopNotification();
-              }
-            });
-          } else if (Notification.permission === 'granted') {
-            showDesktopNotification();
-          }
-        }
       }
     } catch (err) {
       console.error('Failed to fetch user data logs:', err);
@@ -195,32 +169,19 @@ const Overview = () => {
         setTasks(tasksData);
         if (predictionsData) setPredictions(predictionsData);
 
-        // Check for pending High/Medium priority tasks
-        const pendingPriorityTasks = (tasksData || []).filter(task => {
+        // Check for all incomplete tasks
+        const incompleteTasks = (tasksData || []).filter(task => {
           const status = (task.status || '').toLowerCase();
-          const priority = (task.priority || '').toLowerCase();
-          return status !== 'completed' && (priority === 'high' || priority === 'medium');
+          return status !== 'completed';
         });
 
-        if (pendingPriorityTasks.length > 0 && !hasTaskNotifiedRef.current) {
+        if (incompleteTasks.length > 0 && !hasTaskNotifiedRef.current) {
           hasTaskNotifiedRef.current = true;
           addNotification(
-            'alert',
-            'Pending Priority Tasks',
-            `You have ${pendingPriorityTasks.length} pending High or Medium priority tasks left to finish!`
+            'task_alert',
+            'Incomplete Tasks Reminder 🚀',
+            `You have ${incompleteTasks.length} task${incompleteTasks.length > 1 ? 's' : ''} remaining. Let's stay productive and finish them today!`
           );
-
-          // Desktop alert trigger
-          if ('Notification' in window && Notification.permission === 'granted') {
-            const taskNotification = new Notification("MindSync Priority Tasks", {
-              body: `You have ${pendingPriorityTasks.length} high/medium tasks waiting. Let's finish them!`,
-              requireInteraction: false
-            });
-            taskNotification.onclick = () => {
-              window.focus();
-              window.location.href = "/tasks";
-            };
-          }
         }
       } catch (err) {
         console.error('Failed to fetch dashboard data:', err);

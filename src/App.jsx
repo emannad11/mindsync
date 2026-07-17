@@ -17,6 +17,8 @@ import MindModel from './pages/ai/MindModel';
 import Landing from './pages/landing/Landing';
 import Sidebar from './components/Sidebar';
 import FocusMode from './pages/focus/FocusMode';
+import { Menu, X, BrainCircuit } from 'lucide-react';
+
 
 // Admin Dashboards
 import AdminDashboard from './pages/admin/AdminDashboard';
@@ -25,11 +27,30 @@ import AdminAIModel from './pages/admin/AdminAIModel';
 import AdminLogs from './pages/admin/AdminLogs';
 
 const AppLayout = ({ children }) => {
+  const [sidebarOpen, setSidebarOpen] = React.useState(false);
+
   return (
-    <div className="flex min-h-screen bg-background text-slate-200">
-      <Sidebar />
-      <main className="flex-1 pl-64 overflow-y-auto">
-        <div className="max-w-7xl mx-auto pt-2 px-8 pb-8">
+    <div className="min-h-screen bg-background text-slate-200 flex flex-col md:flex-row relative">
+      {/* Mobile Top Header */}
+      <header className="md:hidden flex items-center justify-between px-6 py-4 border-b border-white/5 bg-[#020617]/80 backdrop-blur-xl sticky top-0 z-40 w-full">
+        <div className="flex items-center gap-2">
+          <div className="bg-gradient-to-br from-primary to-secondary p-1.5 rounded-lg">
+            <BrainCircuit className="text-white w-4.5 h-4.5" />
+          </div>
+          <span className="text-md font-bold gradient-text">MindSync AI</span>
+        </div>
+        <button 
+          onClick={() => setSidebarOpen(!sidebarOpen)}
+          className="p-2 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white transition-colors"
+        >
+          {sidebarOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+        </button>
+      </header>
+
+      {/* Sidebar and Main Layout */}
+      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      <main className="flex-1 md:pl-64 overflow-y-auto w-full">
+        <div className="max-w-7xl mx-auto pt-4 px-4 sm:px-8 pb-8">
           {children}
         </div>
       </main>

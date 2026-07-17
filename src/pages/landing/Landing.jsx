@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { 
   BrainCircuit, 
@@ -12,7 +12,9 @@ import {
   Code,
   LayoutDashboard,
   CheckSquare,
-  Timer
+  Timer,
+  Menu,
+  X
 } from 'lucide-react';
 
 const FeatureCard = ({ icon: Icon, title, description, delay }) => (
@@ -32,6 +34,8 @@ const FeatureCard = ({ icon: Icon, title, description, delay }) => (
 );
 
 const Landing = () => {
+  const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
+
   return (
     <div className="min-h-screen bg-[#050505] text-white selection:bg-primary selection:text-white overflow-x-hidden">
       {/* ── Navbar ──────────────────────────────────────────────────────────── */}
@@ -51,15 +55,49 @@ const Landing = () => {
           </div>
 
           <div className="flex items-center gap-4">
-            <Link to="/login" className="text-sm font-medium text-slate-400 hover:text-white transition-colors">
-              Login
-            </Link>
-            <Link to="/signup" className="px-6 py-2.5 rounded-full bg-white text-black text-sm font-bold hover:bg-slate-200 transition-all">
-              Get Started
-            </Link>
+            <div className="hidden sm:flex items-center gap-4">
+              <Link to="/login" className="text-sm font-medium text-slate-400 hover:text-white transition-colors">
+                Login
+              </Link>
+              <Link to="/signup" className="px-6 py-2.5 rounded-full bg-white text-black text-sm font-bold hover:bg-slate-200 transition-all">
+                Get Started
+              </Link>
+            </div>
+            
+            {/* Mobile Menu Toggle */}
+            <button 
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden p-2 hover:bg-white/5 rounded-lg text-slate-400 hover:text-white transition-colors"
+            >
+              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
           </div>
         </div>
       </nav>
+
+      {/* Mobile Menu Dropdown */}
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.2 }}
+            className="fixed top-20 left-0 w-full bg-[#050505]/95 border-b border-white/5 backdrop-blur-lg z-45 md:hidden flex flex-col p-6 gap-6 text-center text-md font-medium text-slate-400"
+          >
+            <a href="#features" onClick={() => setMobileMenuOpen(false)} className="hover:text-white py-2 transition-colors">Features</a>
+            <a href="#about" onClick={() => setMobileMenuOpen(false)} className="hover:text-white py-2 transition-colors">About FYP</a>
+            <a href="#demo" onClick={() => setMobileMenuOpen(false)} className="hover:text-white py-2 transition-colors">Demo</a>
+            <div className="h-px bg-white/5 my-2" />
+            <Link to="/login" onClick={() => setMobileMenuOpen(false)} className="hover:text-white py-2 transition-colors block sm:hidden">
+              Login
+            </Link>
+            <Link to="/signup" onClick={() => setMobileMenuOpen(false)} className="px-6 py-3 rounded-full bg-white text-black font-bold hover:bg-slate-200 transition-all block sm:hidden">
+              Get Started
+            </Link>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* ── Hero Section ────────────────────────────────────────────────────── */}
       <section className="relative pt-44 pb-32">
